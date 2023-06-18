@@ -55,6 +55,10 @@ Select dump.
 Select manual cursor.
 Paste the result.
 
+## Cursor empty
+If the manual cursor is empty: ``[]`` steam didnt reply properly.
+You can try again. But it may not help.
+
 ### How do I get my cookies?
 
 #### Chrome
