@@ -17,8 +17,7 @@ public class Main {
         AnalysisService analysisService = AnalysisService.getInstance();
 
         if (hasNewerVersion()) {
-            System.out.println("New Version available.");
-            System.out.println("Get the new version at: https://github.com/cantryDev/CSGOCaseStatsViewerV2/");
+            System.out.println("Get the new version at: https://github.com/cantryDev/CSGOCaseStatsViewerV2/releases/latest");
             System.out.println();
             System.out.println();
         }

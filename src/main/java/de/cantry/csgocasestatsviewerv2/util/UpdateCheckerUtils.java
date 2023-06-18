@@ -10,14 +10,17 @@ public class UpdateCheckerUtils {
     public static boolean hasNewerVersion() {
         var pom = httpGet("https://raw.githubusercontent.com/cantryDev/CSGOCaseStatsViewerV2/master/pom.xml", "", false).body();
         try {
-            var version = Double.valueOf(regexFindFirst("<version>([^<]+)</version>", pom).replace(".", ""));
+            var newVersion = regexFindFirst("<version>([^<]+)</version>", pom);
             if (Main.class.getPackage().getImplementationVersion() == null) {
                 return false;
             }
-            var currentVersion = Double.valueOf(Main.class.getPackage().getImplementationVersion().replace(".", ""));
-            if (version > currentVersion) {
+            var currentVersion = Main.class.getPackage().getImplementationVersion();
+            if (Double.parseDouble(newVersion.replace(".", "")) > Double.parseDouble(currentVersion.replace(".", ""))) {
                 return true;
             }
+            System.out.println("New Version available.");
+            System.out.println("Current version: " + currentVersion);
+            System.out.println("New version" + newVersion);
         } catch (Exception e) {
             return false;
         }

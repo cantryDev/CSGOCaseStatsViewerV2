@@ -1,1 +1,1 @@
-start cmd /k java -jar CSGOCaseStatsViewerV2-1.0.0-jar-with-dependencies.jar
+start cmd /k java -jar CSGOCaseStatsViewerV2-1.0.1-jar-with-dependencies.jar

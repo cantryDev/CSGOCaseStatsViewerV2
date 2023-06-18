@@ -132,7 +132,7 @@ public class DumpService {
                 return;
             }
         }
-
+        System.out.println("Finished dumping. Restart to analyse the results");
     }
 
     private void safeDump(String source) {
@@ -157,12 +157,7 @@ public class DumpService {
         DumpModel dumpModel = new DumpModel();
         dumpModel.setSource(source);
 
-        JsonObject steamResponse;
-        try {
-            steamResponse = gson.fromJson(source, JsonObject.class);
-        } catch (Exception e) {
-            throw new GlobalException("Failed to parse data from source", e);
-        }
+        JsonObject steamResponse = gson.fromJson(source, JsonObject.class);
         List<Long> currentTimestamps = new ArrayList<>();
 
         List<String> dates = regexFindAll("tradehistory_date\">([^<]+)<", steamResponse.get("html").getAsString());
@@ -183,8 +178,8 @@ public class DumpService {
             dumpModel.setCursor(steamResponse.get("cursor") == null ? null : steamResponse.get("cursor").getAsJsonObject());
             return dumpModel;
         }
-
-        throw new GlobalException("Failed to parse data from source");
+        dumpModel.setSuccess(false);
+        return dumpModel;
     }
 
     public DumpModel getDumpData() {
@@ -196,7 +191,8 @@ public class DumpService {
             try {
                 currentModel = getDumpModelFromJSONSource(String.join("", Files.readAllLines(dumpFile.toPath())));
             } catch (IOException e) {
-                throw new GlobalException("Failed to read source from file: " + dumpFile.toPath(), e);
+                System.out.printf("Failed to read source from file: %1$s %n", dumpFile.toPath(), e);
+                return;
             }
             allDumpModels.add(currentModel);
         });

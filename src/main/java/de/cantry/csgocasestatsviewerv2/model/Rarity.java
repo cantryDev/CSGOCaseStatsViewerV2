@@ -40,7 +40,7 @@ public enum Rarity {
                 }
             }
         }
-        if (unusual && itemRarity.equals("Rarity_Ancient_Weapon")) {
+        if (unusual && itemRarity.startsWith("Rarity_Ancient")) {
             return Rarity.gold;
         }
         String finalItemRarity = itemRarity.replace("_Weapon","");
