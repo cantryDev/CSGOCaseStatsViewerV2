@@ -77,8 +77,8 @@ public class InventoryChangeEntry {
                 "event='" + event + '\'' +
                 ", partner='" + partner + '\'' +
                 ", time=" + time +
-                ", itemsAdded=" + ((itemsAdded == null) ? 0 : itemsAdded.size()) +
-                ", itemsRemoved=" + ((itemsRemoved == null) ? 0 : itemsRemoved.size()) +
+                ", itemsAdded=" + ((itemsAdded == null) ? 0 : itemsAdded) +
+                ", itemsRemoved=" + ((itemsRemoved == null) ? 0 : itemsRemoved) +
                 '}';
     }
 }

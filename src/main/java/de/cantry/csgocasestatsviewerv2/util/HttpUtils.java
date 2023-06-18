@@ -31,7 +31,23 @@ public class HttpUtils {
             }
             return result;
         } catch (IOException | InterruptedException e) {
-            throw new GlobalException(String.format("Failed to HTTP-GET to: %1$s", url), e);
+            throw new GlobalException(String.format("Failed HTTP-GET to: %1$s", url), e);
+        }
+    }
+
+    public static HttpResponse<String> httpPost(String url, String body) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .uri(URI.create(url))
+                .setHeader("User-Agent", "Mozilla/5.0 (Windows NT 7; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0")
+                .setHeader("Accept-Charset", "UTF-8")
+                .setHeader("Accept-Language", "en-US;")
+                .header("Content-Type", "application/json")
+                .build();
+        try {
+            return getHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new GlobalException(String.format("Failed HTTP-POST to: %1$s", url), e);
         }
     }
 

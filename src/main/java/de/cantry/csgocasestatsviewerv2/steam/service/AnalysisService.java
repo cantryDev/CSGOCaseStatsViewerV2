@@ -28,7 +28,9 @@ import java.util.stream.Collectors;
 
 import static de.cantry.csgocasestatsviewerv2.util.FormatUtils.format;
 import static de.cantry.csgocasestatsviewerv2.util.FormatUtils.round;
+import static de.cantry.csgocasestatsviewerv2.util.TimeUtils.longToStringDateConverter;
 import static java.lang.String.join;
+import static java.util.stream.Collectors.toMap;
 
 public class AnalysisService {
 
@@ -165,22 +167,7 @@ public class AnalysisService {
 
     public void analyseUnboxings(File path) {
         var entries = parseFullHistory(path);
-        var events = getAllEventTypesExcludingTrades(entries);
-        var eventName = "";
-        if (events.contains("Unlocked a container")) {
-            eventName = "Unlocked a container";
-        } else {
-            logToConsoleAndFile("Found " + events.size() + " event names");
-            logToConsoleAndFile("Please select Unlocked a container in your language");
-            for (int i = 0; i < events.size(); i++) {
-                logToConsoleAndFile(i + ") -> " + events.get(i));
-            }
-            Scanner scanner = new Scanner(System.in);
-            var input = Integer.valueOf(scanner.nextLine());
-            eventName = events.get(input);
-        }
-        String finalEventName = eventName;
-        var unboxEntries = entries.stream().filter(entry -> finalEventName.equals(entry.getEvent())).collect(Collectors.toList());
+        List<InventoryChangeEntry> unboxEntries = getEntriesForType(entries, "Unlocked a container");
         var unboxTypes = new ArrayList<>(getAllAvailableUnboxingTypes(unboxEntries).entrySet());
         var selectedUnboxType = "";
         logToConsoleAndFile("Found " + unboxTypes.size() + " unboxing types");
@@ -209,16 +196,56 @@ public class AnalysisService {
         });
         var totalUnboxed = unboxedRarities.values().stream().mapToDouble(Integer::intValue).sum();
         System.out.println("Total " + selectedUnboxType + " unboxed: " + (int) totalUnboxed);
-        int sizeForAmountAndTotal = 0;
 
         OddsUtils.getOddsForUnboxType(selectedUnboxType).forEach((rarity, chance) -> {
             double calculatedOdds = round((unboxedRarities.getOrDefault(rarity, 0) / totalUnboxed) * 100, 2);
             String amountAndTotal = unboxedRarities.getOrDefault(rarity, 0) + "/" + (int) totalUnboxed;
-            //TODO: remove
-//            logToConsoleAndFile(rarity + " | " + unboxedRarities.getOrDefault(rarity, 0) + "/" + totalUnboxed + "(" + calculatedOdds + ") | " + chance * 100);
-            logToConsoleAndFile(format(rarity.toString(), 6, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(chance * 100 + "", 5, true) + "%");
-
+            logToConsoleAndFile(format(rarity.toString(), 8, false) + " | " + format(amountAndTotal, 20, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(chance * 100 + "", 5, true) + "%");
         });
+    }
+
+    public void analyseCaseDrops(File path) {
+        var entries = parseFullHistory(path);
+        List<InventoryChangeEntry> itemDrops = getEntriesForType(entries, "Got an item drop");
+        var allCaseDrops = itemDrops.stream().filter(event -> {
+            if (event.getItemsAdded().size() == 1) {
+                var drop = event.getItemsAdded().get(0);
+                return "1".equals(drop.getDescription().get("commodity").getAsString());
+            }
+            return false;
+        }).collect(Collectors.toList());
+        var droppedItems = new HashMap<String, Integer>();
+
+        allCaseDrops.forEach(drop -> {
+            var item = drop.getItemsAdded().get(0).getDescription().get("market_hash_name").getAsString();
+            droppedItems.put(item, droppedItems.getOrDefault(item, 0) + 1);
+            logToConsoleAndFile(item + " time: " + longToStringDateConverter.format(drop.getTime() * 1000));
+        });
+        var finalItems = droppedItems;
+        finalItems = droppedItems.entrySet().stream()
+                .sorted(Collections.reverseOrder(Comparator.comparingDouble(Map.Entry::getValue)))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
+        var totalDrops = droppedItems.values().stream().mapToInt(Integer::intValue).sum();
+        finalItems.forEach((name, amount) -> {
+            logToConsoleAndFile(format(name, 32, false) + " | " + format(String.valueOf(amount), 7, true));
+        });
+        logToConsoleAndFile("Total. cases: " + totalDrops);
+    }
+
+    private List<InventoryChangeEntry> getEntriesForType(List<InventoryChangeEntry> entries, String eventName) {
+        var events = getAllEventTypesExcludingTrades(entries);
+        if (!events.contains(eventName)) {
+            logToConsoleAndFile("Found " + events.size() + " event names");
+            logToConsoleAndFile("Please select" + eventName + " in your language");
+            for (int i = 0; i < events.size(); i++) {
+                logToConsoleAndFile(i + ") -> " + events.get(i));
+            }
+            Scanner scanner = new Scanner(System.in);
+            var input = Integer.valueOf(scanner.nextLine());
+            eventName = events.get(input);
+        }
+        String finalEventName = eventName;
+        return entries.stream().filter(entry -> finalEventName.equals(entry.getEvent())).collect(Collectors.toList());
     }
 
 

@@ -6,6 +6,8 @@ import de.cantry.csgocasestatsviewerv2.util.TimeUtils;
 
 import java.util.Scanner;
 
+import static de.cantry.csgocasestatsviewerv2.util.UpdateCheckerUtils.hasNewerVersion;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -13,6 +15,13 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         DumpService dumpService = DumpService.getInstance();
         AnalysisService analysisService = AnalysisService.getInstance();
+
+        if (hasNewerVersion()) {
+            System.out.println("New Version available.");
+            System.out.println("Get the new version at: https://github.com/cantryDev/CSGOCaseStatsViewerV2/");
+            System.out.println();
+            System.out.println();
+        }
 
         int input;
 
@@ -23,7 +32,7 @@ public class Main {
             System.out.printf("Available data from %1$s to %2$s%n", TimeUtils.longToStringDateConverter.format(savedData.getLowestTimestamp() * 1000), TimeUtils.longToStringDateConverter.format(savedData.getHighestTimestamp() * 1000));
             System.out.println("1. -> Dump inventory history (can take some time)");
             System.out.println("2. -> Analyse unboxing history");
-            System.out.println("3. -> Analyse full CSGO history");
+            System.out.println("3. -> Analyse case drop history");
             System.out.println("Type the number and press enter.");
             input = Integer.parseInt(scanner.nextLine());
             switch (input) {
@@ -32,6 +41,9 @@ public class Main {
                     break;
                 case 2:
                     analysisService.analyseUnboxings(dumpService.getDumpDirectory());
+                    break;
+                case 3:
+                    analysisService.analyseCaseDrops(dumpService.getDumpDirectory());
                     break;
             }
         } else {

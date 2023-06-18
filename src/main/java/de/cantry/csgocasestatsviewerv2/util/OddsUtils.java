@@ -8,21 +8,19 @@ public class OddsUtils {
 
     public static TreeMap<Rarity, Double> getOdds(Rarity startingAt, Rarity endingAt) {
         double remainingOdds = 1;
-        TreeMap<Rarity, Double> odds = new TreeMap<Rarity, Double>();
-
+        TreeMap<Rarity, Double> odds = new TreeMap<>();
+        if (startingAt == Rarity.blue && endingAt == Rarity.gold) {
+            odds.put(Rarity.blue, 0.7992);
+            odds.put(Rarity.purple, 0.1598);
+            odds.put(Rarity.pink, 0.032);
+            odds.put(Rarity.red, 0.0064);
+            odds.put(Rarity.gold, 0.0026);
+            return odds;
+        }
         for (int i = startingAt.getAsNumber(); i <= endingAt.getAsNumber(); i++) {
             Rarity currentRarity = Rarity.fromNumber(i);
-            if(currentRarity.equals(Rarity.gold)){
-                //TODO fix this
-                var gold = odds.get(Rarity.red);
-                odds.put(currentRarity, (gold / 5) * 2);
-
-            }else{
-                odds.put(currentRarity, (remainingOdds / 5) * 4);
-                remainingOdds /= 5;
-            }
-
-
+            odds.put(currentRarity, (remainingOdds / 5) * 4);
+            remainingOdds /= 5;
         }
         return odds;
     }

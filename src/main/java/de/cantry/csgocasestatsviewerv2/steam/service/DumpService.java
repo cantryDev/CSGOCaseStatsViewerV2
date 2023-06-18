@@ -5,15 +5,12 @@ import com.google.gson.JsonObject;
 import de.cantry.csgocasestatsviewerv2.exception.GlobalException;
 import de.cantry.csgocasestatsviewerv2.model.DumpModel;
 
-import javax.sound.midi.Soundbank;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static de.cantry.csgocasestatsviewerv2.util.HttpUtils.httpGet;
@@ -85,9 +82,12 @@ public class DumpService {
                         break;
                     case "3":
                         System.out.println("Enter Cursor:");
-                        //TODO: check input
+
                         var cursorInput = scanner.nextLine();
                         var cursor = gson.fromJson(cursorInput, JsonObject.class);
+                        if (!cursor.has("s") || !cursor.has("time_frac") || !cursor.has("time")) {
+                            throw new GlobalException("Cursor input invalid. Input:" + cursorInput);
+                        }
                         s = cursor.get("s").getAsString();
                         time_frac = cursor.get("time_frac").getAsString();
                         start = cursor.get("time").getAsLong();

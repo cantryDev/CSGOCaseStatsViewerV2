@@ -41,11 +41,18 @@ public class Item {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Item item = (Item) o;
-        return (assetID == item.assetID) || Objects.equals(description, item.description) && Objects.equals(descriptionKey, item.descriptionKey);
+        return assetID != 0 && (assetID == item.assetID) || Objects.equals(description, item.description) && Objects.equals(descriptionKey, item.descriptionKey);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(description, assetID, descriptionKey);
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" + "assetID= " + assetID +
+                ", descriptionKey='" + descriptionKey + '\'' +
+                '}';
     }
 }
