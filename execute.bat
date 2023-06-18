@@ -1,1 +1,1 @@
-start cmd /k C:\Users\Admin\.jdks\azul-11.0.16.1\bin\java.exe -jar target/CSGOCaseStatsViewerV2-1.0-SNAPSHOT-jar-with-dependencies.jar
+start cmd /k java -jar target/CSGOCaseStatsViewerV2-1.0.0-jar-with-dependencies.jar
