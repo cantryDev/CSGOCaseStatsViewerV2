@@ -186,8 +186,8 @@ public class AnalysisService {
                 return !itemType.equals("Base Grade Key");
             }).collect(Collectors.toList());
             if (consumedItem.size() == 1 && entry.getItemsAdded().size() == 1) {
-                logToConsoleAndFile(consumedItem.get(0).getDescription().get("market_hash_name").getAsString() + "->" + entry.getItemsAdded().get(0).getDescription().get("market_hash_name").getAsString());
                 var rarity = Rarity.fromDescription(entry.getItemsAdded().get(0).getDescription());
+                logToConsoleAndFile(consumedItem.get(0).getDescription().get("market_hash_name").getAsString() + "->" + entry.getItemsAdded().get(0).getDescription().get("market_hash_name").getAsString() + " (" + rarity + ")");
                 unboxedRarities.put(rarity, unboxedRarities.getOrDefault(rarity, 0) + 1);
             } else {
                 logToConsoleAndFile("Item amount not matching");
@@ -195,12 +195,17 @@ public class AnalysisService {
             }
         });
         var totalUnboxed = unboxedRarities.values().stream().mapToDouble(Integer::intValue).sum();
-        System.out.println("Total " + selectedUnboxType + " unboxed: " + (int) totalUnboxed);
+        logToConsoleAndFile("Total " + selectedUnboxType + " unboxed: " + (int) totalUnboxed);
+
+        logToConsoleAndFile("");
+        logToConsoleAndFile("Item distribution and odds calculation");
+        logToConsoleAndFile("Rarity name | Yours | Official");
+        logToConsoleAndFile("-------------------------------------------");
 
         OddsUtils.getOddsForUnboxType(selectedUnboxType).forEach((rarity, chance) -> {
             double calculatedOdds = round((unboxedRarities.getOrDefault(rarity, 0) / totalUnboxed) * 100, 2);
             String amountAndTotal = unboxedRarities.getOrDefault(rarity, 0) + "/" + (int) totalUnboxed;
-            logToConsoleAndFile(format(rarity.toString(), 8, false) + " | " + format(amountAndTotal, 20, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(chance * 100 + "", 5, true) + "%");
+            logToConsoleAndFile(format(rarity.toString(), 8, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(chance * 100 + "", 5, true) + "%");
         });
     }
 

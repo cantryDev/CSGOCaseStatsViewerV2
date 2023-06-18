@@ -16,7 +16,7 @@ After the inventory history is dumped you can analyse how many cases you opened.
 
 ## Example result
 
-<a href=https://github.com/cantryDev/CSGOCaseStatsViewerV2/blob/master/result_07_02_2021_14_54.txt>click</a>
+<a href=https://github.com/cantryDev/CSGOCaseStatsViewerV2/blob/master/result_18_06_2023_14_07.txt>click</a>
 
 ## Requirements
 - Java 11 or higher
@@ -30,24 +30,42 @@ Steam: <a href="https://steamcommunity.com/tradeoffer/new/?partner=58001078&toke
 ## FAQ
 
 ### Migrate from v1
+
 You can migrate your data from the old version.
 Just copy your dumps folder here and rename it to data.
 
 ### It crashed
+
 Just restart it. It will continue where it crashed.
 
 ### Why does it need my cookies?
+
 It needs your cookies to request your <a href=https://steamcommunity.com/my/inventoryhistory>inventory history</a>
+
+## Get cursor Manual
+
+Visit the time in your inventory history which got displayed at the end in your browser.
+<a href=https://github.com/cantryDev/CSGOCaseStatsViewerV2/blob/master/js/cursorExtractor.js>Copy this javascript</a>
+Paste it into your browser console (right click inspect. Select console).
+It should say cursor found:
+``{"time":1680541133,"time_frac":0,"s":"7634801621"}``
+Copy the result.
+Restart the execute.bat
+Select dump.
+Select manual cursor.
+Paste the result.
 
 ### How do I get my cookies?
 
 #### Chrome
+
 1. Login into your steam account.
 2. Visit your steam profile.
-3. Press F12 or right click(anywhere on the website) and press inspect element. 
+3. Press F12 or right click(anywhere on the website) and press inspect element.
 4. Select the network tab
 5. Reload the page
-6. Go back to the network tab and scroll to the top and select the first entry. Click on headers. On the right side it should say Request Url: Your steam profile url
+6. Go back to the network tab and scroll to the top and select the first entry. Click on headers. On the right side it
+   should say Request Url: Your steam profile url
 7. Scroll down on the right side till you see Cookie:
 8. Right click on Cookie: and select copy value. Or copy it manual.
 
