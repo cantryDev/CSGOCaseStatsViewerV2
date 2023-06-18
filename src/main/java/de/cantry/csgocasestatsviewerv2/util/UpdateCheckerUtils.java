@@ -16,11 +16,11 @@ public class UpdateCheckerUtils {
             }
             var currentVersion = Main.class.getPackage().getImplementationVersion();
             if (Double.parseDouble(newVersion.replace(".", "")) > Double.parseDouble(currentVersion.replace(".", ""))) {
+                System.out.println("New Version available.");
+                System.out.println("Current version: " + currentVersion);
+                System.out.println("New version" + newVersion);
                 return true;
             }
-            System.out.println("New Version available.");
-            System.out.println("Current version: " + currentVersion);
-            System.out.println("New version" + newVersion);
         } catch (Exception e) {
             return false;
         }
