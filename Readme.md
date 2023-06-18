@@ -1,4 +1,4 @@
-# CS:GO case stats viewer
+# CS:GO case stats viewer V2
 
 ## How does it work?
 
