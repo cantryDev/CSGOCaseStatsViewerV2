@@ -4,20 +4,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.cantry.csgocasestatsviewerv2.exception.GlobalException;
 import de.cantry.csgocasestatsviewerv2.model.DumpModel;
+import de.cantry.csgocasestatsviewerv2.util.TimeUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 import static de.cantry.csgocasestatsviewerv2.util.HttpUtils.httpGet;
 import static de.cantry.csgocasestatsviewerv2.util.RegexUtils.regexFindAll;
 import static de.cantry.csgocasestatsviewerv2.util.RegexUtils.regexFindFirst;
 import static de.cantry.csgocasestatsviewerv2.util.TimeUtils.longToStringDateConverter;
-import static de.cantry.csgocasestatsviewerv2.util.TimeUtils.stringToLongDateConverter;
 
 public class DumpService {
 
@@ -138,7 +137,7 @@ public class DumpService {
     private void safeDump(String source) {
         File resultFile = new File(dumpDirectory.getAbsolutePath() + File.separator + UUID.randomUUID() + ".dump");
         try {
-            Files.write(resultFile.toPath(), source.getBytes(), StandardOpenOption.CREATE_NEW);
+            Files.write(resultFile.toPath(), source.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
         } catch (IOException e) {
             throw new GlobalException("Failed to write dump: " + resultFile.getPath(), e);
         }
@@ -165,8 +164,10 @@ public class DumpService {
         if (dates.size() == times.size() && dates.size() != 0) {
             for (int i = 0; i < dates.size(); i++) {
                 String dateString = (dates.get(i).replace("\t", "").replace("\r", "").replace("\n", "") + " " + times.get(i).toUpperCase().replace("\t", "").replace("\r", "").replace("\n", ""));
-                ZonedDateTime dateTime = ZonedDateTime.parse(dateString, stringToLongDateConverter.withZone(ZoneId.of("GMT")));
-                currentTimestamps.add(dateTime.toInstant().getEpochSecond());
+                long time = TimeUtils.getTimeFromString(dateString);
+                if (time != 0) {
+                    currentTimestamps.add(time);
+                }
             }
         }
 

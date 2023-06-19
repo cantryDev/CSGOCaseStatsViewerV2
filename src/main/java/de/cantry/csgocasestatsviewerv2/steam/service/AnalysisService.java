@@ -8,35 +8,29 @@ import de.cantry.csgocasestatsviewerv2.model.InventoryChangeEntry;
 import de.cantry.csgocasestatsviewerv2.model.Item;
 import de.cantry.csgocasestatsviewerv2.model.Rarity;
 import de.cantry.csgocasestatsviewerv2.util.OddsUtils;
+import de.cantry.csgocasestatsviewerv2.util.TimeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.cantry.csgocasestatsviewerv2.util.FormatUtils.format;
 import static de.cantry.csgocasestatsviewerv2.util.FormatUtils.round;
 import static de.cantry.csgocasestatsviewerv2.util.TimeUtils.longToStringDateConverter;
-import static java.lang.String.join;
 import static java.util.stream.Collectors.toMap;
 
 public class AnalysisService {
 
     private static AnalysisService instance;
 
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("d MMM, yyyy h:mma", Locale.ENGLISH);
     private File resultFile;
 
     private OutputStream outputStream;
@@ -55,7 +49,21 @@ public class AnalysisService {
         for (File f : Objects.requireNonNull(path.listFiles())) {
             //Not pretty but better then nullchecking every field
             try {
-                JsonObject obj = gson.fromJson(join("", Files.readAllLines(f.toPath())), JsonObject.class);
+                String fileContent = "";
+                try {
+                    var lines = Files.readAllLines(f.toPath(), StandardCharsets.UTF_8);
+
+                    fileContent = String.join("", lines);
+                } catch (Exception e) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    logToConsoleAndFile(sw.toString());
+                }
+                if (fileContent.isEmpty()) {
+                    throw new Exception("Dump with name" + f.getName() + " seems to be corrupted");
+                }
+                JsonObject obj = gson.fromJson(fileContent, JsonObject.class);
                 String currentDumpHTML = obj.get("html").getAsString();
                 Document currentDoc = Jsoup.parse(currentDumpHTML);
                 HashMap<String, JsonObject> descriptionsByKey = new HashMap<>();
@@ -74,8 +82,12 @@ public class AnalysisService {
                         inventoryChangeEntry.setPartner(tradehistoryrow.getElementsByTag("a").get(0).attr("href"));
                     }
                     String dateString = tradehistoryrow.getElementsByClass("tradehistory_date").get(0).text().replace("am", "AM").replace("pm", "PM").replace("\\t", "").replace("\\r", "").replace("\\n", "");
-                    ZonedDateTime dateTime = ZonedDateTime.parse(dateString, dateTimeFormatter.withZone(ZoneId.of("UTC")));
-                    inventoryChangeEntry.setTime(dateTime.toInstant().getEpochSecond());
+                    long time = TimeUtils.getTimeFromString(dateString);
+                    if (time == 0) {
+                        logToConsoleAndFile("Failed to parse date: " + dateString);
+                        continue;
+                    }
+                    inventoryChangeEntry.setTime(time);
 
                     List<Element> itemGroups = tradehistoryrow.getElementsByClass("tradehistory_items");
 
@@ -136,7 +148,10 @@ public class AnalysisService {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                logToConsoleAndFile(sw.toString());
                 logToConsoleAndFile("Dump with name " + f.getName() + " seems to be corrupted");
             }
 
