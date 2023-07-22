@@ -2,6 +2,7 @@ package de.cantry.csgocasestatsviewerv2.model;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import de.cantry.csgocasestatsviewerv2.exception.GlobalException;
 
 import java.util.Arrays;
 
@@ -14,12 +15,12 @@ public enum Rarity {
     red(6, "Rarity_Ancient"),
     gold(7, "");
 
-    int asNumber;
+    final int asNumber;
 
-    String internalName;
+    final String internalName;
 
     Rarity(int i, String internalName) {
-        asNumber = i;
+        this.asNumber = i;
         this.internalName = internalName;
     }
 
@@ -43,8 +44,13 @@ public enum Rarity {
         if (unusual && itemRarity.startsWith("Rarity_Ancient")) {
             return Rarity.gold;
         }
-        String finalItemRarity = itemRarity.replace("_Weapon","");
-        return Arrays.stream(values()).filter(rarity -> rarity.internalName.equals(finalItemRarity)).findFirst().get();
+        String finalItemRarity = itemRarity.replace("_Weapon", "");
+        var rarityOpt = Arrays.stream(values()).filter(rarity -> rarity.internalName.equals(finalItemRarity)).findFirst();
+        if (rarityOpt.isEmpty()) {
+            throw new GlobalException("Failed to get rarity from item: " + jsonObject);
+        } else {
+            return rarityOpt.get();
+        }
     }
 
     public int getAsNumber() {

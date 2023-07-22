@@ -32,6 +32,8 @@ public class DumpService {
 
     private String sessionid;
 
+    private boolean debug;
+
     public DumpService() {
         this.gson = new Gson();
         if (!dumpDirectory.exists()) {
@@ -147,6 +149,10 @@ public class DumpService {
 
         String requestUrl = inventoryUrl + "?ajax=1&cursor%5Btime%5D=" + time + "&cursor%5Btime_frac%5D=" + time_frac + "&cursor%5Bs%5D=" + s + "&sessionid=" + sessionid + "&app%5B%5D=" + 730;
 
+        if (debug) {
+            System.out.println("Requesting data from: " + requestUrl);
+        }
+
         var steamResponse = httpGet(requestUrl, cookies, false);
 
         return getDumpModelFromJSONSource(steamResponse.body());
@@ -255,6 +261,10 @@ public class DumpService {
             cookies = "Cookies: " + cookies;
         }
         this.cookies = cookies;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     public static DumpService getInstance() {

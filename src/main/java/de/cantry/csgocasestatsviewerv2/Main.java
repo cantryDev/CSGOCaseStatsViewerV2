@@ -14,6 +14,11 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         DumpService dumpService = DumpService.getInstance();
+        for (String arg : args) {
+            if ("debug".equals(arg)) {
+                dumpService.setDebug(true);
+            }
+        }
         AnalysisService analysisService = AnalysisService.getInstance();
 
         if (hasNewerVersion()) {
