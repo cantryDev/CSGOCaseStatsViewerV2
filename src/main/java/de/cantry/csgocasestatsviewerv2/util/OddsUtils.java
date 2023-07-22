@@ -7,14 +7,13 @@ import java.util.TreeMap;
 public class OddsUtils {
 
     public static TreeMap<Rarity, Double> getOdds(Rarity startingAt, Rarity endingAt) {
-        double remainingOdds = 1;
         TreeMap<Rarity, Double> odds = new TreeMap<>();
         if (startingAt == Rarity.blue && endingAt == Rarity.gold) {
-            odds.put(Rarity.blue, 0.7992);
-            odds.put(Rarity.purple, 0.1598);
-            odds.put(Rarity.pink, 0.032);
-            odds.put(Rarity.red, 0.0064);
-            odds.put(Rarity.gold, 0.0026);
+            odds.put(Rarity.blue, 0.7923);
+            odds.put(Rarity.purple, 0.15985);
+            odds.put(Rarity.pink, 0.03197);
+            odds.put(Rarity.red, 0.00639);
+            odds.put(Rarity.gold, 0.00256);
             return odds;
         }
 

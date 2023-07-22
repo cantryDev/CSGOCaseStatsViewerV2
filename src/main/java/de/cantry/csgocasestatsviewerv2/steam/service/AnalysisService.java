@@ -220,7 +220,7 @@ public class AnalysisService {
         OddsUtils.getOddsForUnboxType(selectedUnboxType).forEach((rarity, chance) -> {
             double calculatedOdds = round((unboxedRarities.getOrDefault(rarity, 0) / totalUnboxed) * 100, 2);
             String amountAndTotal = unboxedRarities.getOrDefault(rarity, 0) + "/" + (int) totalUnboxed;
-            logToConsoleAndFile(format(rarity.toString(), 8, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 5, true) + "%");
+            logToConsoleAndFile(format(rarity.toString(), 8, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 7, true) + "%");
         });
     }
 
