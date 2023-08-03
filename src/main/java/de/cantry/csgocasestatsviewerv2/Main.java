@@ -44,7 +44,13 @@ public class Main {
                 System.out.println("3. -> Analyse case drop history");
                 System.out.println("0. -> EXIT");
                 System.out.println("Type the number and press enter.");
-                input = Integer.parseInt(scanner.nextLine());
+
+                try {
+                    input = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    input = -1;
+                }
+
                 switch (input) {
                     case 1:
                         dumpService.dump(savedData);
