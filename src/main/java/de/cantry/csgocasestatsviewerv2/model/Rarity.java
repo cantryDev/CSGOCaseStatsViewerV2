@@ -13,7 +13,7 @@ public enum Rarity {
     purple(4, "Rarity_Mythical"),
     pink(5, "Rarity_Legendary"),
     red(6, "Rarity_Ancient"),
-    gold(7, "");
+    gold(7, "Rarity_Contraband");
 
     final int asNumber;
 
