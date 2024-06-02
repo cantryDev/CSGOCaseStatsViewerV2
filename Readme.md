@@ -24,7 +24,8 @@ After the inventory history is dumped you can analyse how many cases you opened.
 
 ## Requirements
 
-- Java 11 or higher
+- Java 11 or higher. You can download java from [Azul](https://www.azul.com/downloads/?version=java-21-lts&package=jre#zulu)
+
 
 ## Donate
 
