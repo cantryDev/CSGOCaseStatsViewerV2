@@ -130,10 +130,12 @@ public class DumpService {
                 System.out.println("Failed to find cursor for more data.");
                 System.out.println("If it should find more data after: " + longToStringDateConverter.format(new Date(dumpResult.getLowestTimestamp() * 1000)));
                 System.out.println("Please restart the scanning after getting the cursor manual from: " + inventoryUrl + "?start_time=" + dumpResult.getLowestTimestamp());
+                System.out.println();
                 return;
             }
         }
-        System.out.println("Finished dumping. Restart to analyse the results");
+        System.out.println("Finished dumping.");
+        System.out.println();
     }
 
     private void safeDump(String source) {
