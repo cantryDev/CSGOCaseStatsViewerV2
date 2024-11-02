@@ -1,3 +1,17 @@
+Copenhagen 2024 Mirage Souvenir Package;Souvenir Package
+Copenhagen 2024 Nuke Souvenir Package;Souvenir Package
+Copenhagen 2024 Ancient Souvenir Package;Souvenir Package
+Copenhagen 2024 Overpass Souvenir Package;Souvenir Package
+Copenhagen 2024 Anubis Souvenir Package;Souvenir Package
+Copenhagen 2024 Inferno Souvenir Package;Souvenir Package
+Copenhagen 2024 Vertigo Souvenir Package;Souvenir Package
+Copenhagen 2024 Contenders Sticker Capsule;Capsule
+Copenhagen 2024 Legends Sticker Capsule;Capsule
+Copenhagen 2024 Challengers Sticker Capsule;Capsule
+Copenhagen 2024 Contenders Autograph Capsule;Capsule
+Copenhagen 2024 Legends Autograph Capsule;Capsule
+Copenhagen 2024 Challengers Autograph Capsule;Capsule
+Gallery Case;Case
 Kilowatt Case;Case
 Ambush Sticker Capsule;Capsule
 Rio 2022 Champions Autograph Capsule;Capsule
