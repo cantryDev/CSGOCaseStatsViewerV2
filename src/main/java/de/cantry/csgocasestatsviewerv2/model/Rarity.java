@@ -44,7 +44,7 @@ public enum Rarity {
         if (unusual && itemRarity.startsWith("Rarity_Ancient")) {
             return Rarity.gold;
         }
-        String finalItemRarity = itemRarity.replace("_Weapon", "");
+        String finalItemRarity = itemRarity.replace("_Weapon", "").replace("_Character", "");
         var rarityOpt = Arrays.stream(values()).filter(rarity -> rarity.internalName.equals(finalItemRarity)).findFirst();
         if (rarityOpt.isEmpty()) {
             throw new GlobalException("Failed to get rarity from item: " + jsonObject);

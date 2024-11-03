@@ -3,6 +3,7 @@ package de.cantry.csgocasestatsviewerv2.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class InventoryChangeEntry {
 
@@ -42,7 +43,7 @@ public class InventoryChangeEntry {
     }
 
     public List<Item> getItemsRemoved() {
-        return itemsRemoved  == null ? new ArrayList<>() : itemsRemoved;
+        return itemsRemoved == null ? new ArrayList<>() : itemsRemoved;
     }
 
     public void setItemsRemoved(List<Item> itemsRemoved) {
@@ -63,7 +64,24 @@ public class InventoryChangeEntry {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InventoryChangeEntry that = (InventoryChangeEntry) o;
-        return time == that.time && Objects.equals(event, that.event) && Objects.equals(partner, that.partner) && Objects.equals(itemsAdded, that.itemsAdded) && Objects.equals(itemsRemoved, that.itemsRemoved);
+        if (time == that.time && Objects.equals(event, that.event) && Objects.equals(partner, that.partner)) {
+            var addedEqual = false;
+            var removedEqual = false;
+            if (itemsAdded != null && that.itemsAdded != null) {
+                addedEqual = Objects.equals(itemsAdded.stream().map(Item::getAssetID).collect(Collectors.toList()), that.itemsAdded.stream().map(Item::getAssetID).collect(Collectors.toList()));
+            }
+            if (itemsRemoved != null && that.itemsRemoved != null) {
+                removedEqual = Objects.equals(itemsRemoved.stream().map(Item::getAssetID).collect(Collectors.toList()), that.itemsRemoved.stream().map(Item::getAssetID).collect(Collectors.toList()));
+            }
+            if (itemsAdded == null && that.itemsAdded == null) {
+                removedEqual = true;
+            }
+            if (itemsRemoved == null && that.itemsRemoved == null) {
+                removedEqual = true;
+            }
+            return addedEqual && removedEqual;
+        }
+        return false;
     }
 
     @Override
