@@ -30,7 +30,7 @@ public class Main {
         }
 
         int input;
-
+      
         System.out.println("CSGOCaseStatsViewerV2");
 
         do {
@@ -42,6 +42,7 @@ public class Main {
                 System.out.println("1. -> Dump inventory history (can take some time)");
                 System.out.println("2. -> Analyse unboxing history");
                 System.out.println("3. -> Analyse case drop history");
+                System.out.println("4. -> Analyse Operation drop history");
                 System.out.println("0. -> EXIT");
                 System.out.println("Type the number and press enter.");
 
@@ -60,6 +61,9 @@ public class Main {
                         break;
                     case 3:
                         analysisService.analyseCaseDrops(dumpService.getDumpDirectory());
+                        break;
+                    case 4:
+                        analysisService.analyseOperationDrops(dumpService.getDumpDirectory());
                         break;
                     case 0:
                         run = false;

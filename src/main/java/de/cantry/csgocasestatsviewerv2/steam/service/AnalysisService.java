@@ -180,6 +180,38 @@ public class AnalysisService {
         return inventoryChangeEntries;
     }
 
+    private static HashMap<String, Integer> determineOperationDropTypes(List<InventoryChangeEntry> itemDrops) {
+        HashMap<String, Integer> types = new HashMap<>();
+        itemDrops.forEach(drop -> {
+            if (drop.getItemsAdded().size() != 1) {
+                return;
+            }
+            var dropItem = drop.getItemsAdded().get(0);
+            if (dropItem.getDescription().get("commodity").getAsString().equals("0")) {
+                for (JsonElement element : dropItem.getDescription().get("tags").getAsJsonArray()) {
+                    JsonObject object = element.getAsJsonObject();
+                    if (object.get("category").getAsString().equals("Weapon")) {
+                        var type = "Skin Drop";
+                        var typeCount = types.getOrDefault(type, 0);
+                        typeCount++;
+                        types.put(type, typeCount);
+                        return;
+                    }
+                }
+            }
+            for (JsonElement element : drop.getItemsAdded().get(0).getDescription().get("tags").getAsJsonArray()) {
+                JsonObject object = element.getAsJsonObject();
+                if (object.get("category").getAsString().equals("Type")) {
+                    var type = object.get("internal_name").getAsString();
+                    var typeCount = types.getOrDefault(type, 0);
+                    typeCount++;
+                    types.put(type, typeCount);
+                }
+            }
+        });
+        return types;
+    }
+
     public void analyseUnboxings(File path) {
         var entries = parseFullHistory(path);
         List<InventoryChangeEntry> unboxEntries = getEntriesForType(entries, "Unlocked a container");
@@ -220,7 +252,7 @@ public class AnalysisService {
         OddsUtils.getOddsForUnboxType(selectedUnboxType).forEach((rarity, chance) -> {
             double calculatedOdds = round((unboxedRarities.getOrDefault(rarity, 0) / totalUnboxed) * 100, 2);
             String amountAndTotal = unboxedRarities.getOrDefault(rarity, 0) + "/" + (int) totalUnboxed;
-            logToConsoleAndFile(format(rarity.toString(), 8, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 7, true) + "%");
+            logToConsoleAndFile(format(rarity.toString(), 10, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 7, true) + "%");
         });
 
         waitForInputAndContinue();
@@ -229,10 +261,11 @@ public class AnalysisService {
     public void analyseCaseDrops(File path) {
         var entries = parseFullHistory(path);
         List<InventoryChangeEntry> itemDrops = getEntriesForType(entries, "Got an item drop");
+        itemDrops.addAll(getEntriesForType(entries, "Earned a new rank and got a drop"));
         var allCaseDrops = itemDrops.stream().filter(event -> {
             if (event.getItemsAdded().size() == 1) {
                 var drop = event.getItemsAdded().get(0);
-                return "1".equals(drop.getDescription().get("commodity").getAsString());
+                return "1".equals(drop.getDescription().get("commodity").getAsString()) && drop.getDescription().get("type").getAsString().contains("Container");
             }
             return false;
         }).collect(Collectors.toList());
@@ -254,6 +287,72 @@ public class AnalysisService {
         logToConsoleAndFile("Total. cases: " + totalDrops);
 
         waitForInputAndContinue();
+    }
+
+    public void analyseOperationDrops(File path) {
+        var entries = parseFullHistory(path);
+        List<InventoryChangeEntry> itemDrops = getEntriesForType(entries, "Mission reward");
+
+        var itemTypes = new ArrayList<>(determineOperationDropTypes(itemDrops).entrySet());
+        logToConsoleAndFile("Found " + itemTypes.size() + " drop types");
+        logToConsoleAndFile("Please select one drop type");
+        for (int i = 0; i < itemTypes.size(); i++) {
+            logToConsoleAndFile((i + 1) + ") -> " + itemTypes.get(i).getKey() + "(" + itemTypes.get(i).getValue() + ")");
+        }
+        Scanner scanner = new Scanner(System.in);
+        var input = Integer.parseInt(scanner.nextLine()) - 1;
+        var selectedUnboxType = itemTypes.get(input).getKey();
+        var allFilteredItems = itemDrops.stream().filter(event -> {
+            if (event.getItemsAdded().size() == 1) {
+                var drop = event.getItemsAdded().get(0);
+
+                if ("Skin Drop".equals(selectedUnboxType)) {
+                    if (drop.getDescription().get("commodity").getAsString().equals("0")) {
+                        for (JsonElement element : drop.getDescription().get("tags").getAsJsonArray()) {
+                            JsonObject object = element.getAsJsonObject();
+                            if (object.get("category").getAsString().equals("Weapon")) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                for (JsonElement element : drop.getDescription().get("tags").getAsJsonArray()) {
+                    JsonObject object = element.getAsJsonObject();
+                    if (object.get("category").getAsString().equals("Type")) {
+                        var type = object.get("internal_name").getAsString();
+                        if (selectedUnboxType.equals(type)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }).collect(Collectors.toList());
+        var unboxedRarities = new HashMap<Rarity, Integer>();
+        allFilteredItems.forEach(entry -> {
+            System.out.println();
+            var rarity = Rarity.fromDescription(entry.getItemsAdded().get(0).getDescription());
+            logToConsoleAndFile(longToStringDateConverter.format(entry.getTime() * 1000) + "->" + entry.getItemsAdded().get(0).getDescription().get("market_hash_name").getAsString() + " (" + rarity + ")");
+            unboxedRarities.put(rarity, unboxedRarities.getOrDefault(rarity, 0) + 1);
+        });
+        var totalUnboxed = unboxedRarities.values().stream().mapToDouble(Integer::intValue).sum();
+        logToConsoleAndFile("Total rewards redeemed: " + (int) totalUnboxed);
+
+        logToConsoleAndFile("");
+        logToConsoleAndFile("Item distribution and odds calculation");
+        if ("Skin Drop".equals(selectedUnboxType)) {
+            logToConsoleAndFile("To simplify the odds each operation skin collection has all rarities");
+        }
+        logToConsoleAndFile("Rarity name | Yours | Official");
+        logToConsoleAndFile("-------------------------------------------");
+        var lowestRarity = unboxedRarities.keySet().stream().sorted(Comparator.comparingInt(Rarity::getAsNumber)).collect(Collectors.toList()).get(0);
+
+        OddsUtils.getOdds(lowestRarity, Rarity.red).forEach((rarity, chance) -> {
+            double calculatedOdds = round((unboxedRarities.getOrDefault(rarity, 0) / totalUnboxed) * 100, 2);
+            String amountAndTotal = unboxedRarities.getOrDefault(rarity, 0) + "/" + (int) totalUnboxed;
+            logToConsoleAndFile(format(rarity.toString(), 10, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 5, true) + "%");
+        });
     }
 
     private List<InventoryChangeEntry> getEntriesForType(List<InventoryChangeEntry> entries, String eventName) {

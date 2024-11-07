@@ -13,7 +13,7 @@ public enum Rarity {
     purple(4, "Rarity_Mythical"),
     pink(5, "Rarity_Legendary"),
     red(6, "Rarity_Ancient"),
-    gold(7, "");
+    gold(7, "Rarity_Contraband");
 
     final int asNumber;
 
@@ -44,7 +44,7 @@ public enum Rarity {
         if (unusual && itemRarity.startsWith("Rarity_Ancient")) {
             return Rarity.gold;
         }
-        String finalItemRarity = itemRarity.replace("_Weapon", "");
+        String finalItemRarity = itemRarity.replace("_Weapon", "").replace("_Character", "");
         var rarityOpt = Arrays.stream(values()).filter(rarity -> rarity.internalName.equals(finalItemRarity)).findFirst();
         if (rarityOpt.isEmpty()) {
             throw new GlobalException("Failed to get rarity from item: " + jsonObject);
