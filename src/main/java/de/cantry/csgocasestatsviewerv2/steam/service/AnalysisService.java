@@ -38,7 +38,7 @@ public class AnalysisService {
     public List<InventoryChangeEntry> parseFullHistory(File path) {
         Gson gson = new Gson();
         List<InventoryChangeEntry> inventoryChangeEntries = new ArrayList<>();
-        logToConsoleAndFile("Sorted by time");
+        logToConsoleAndFile("Sorted by time", true);
 
         var files = path.listFiles();
 
@@ -254,6 +254,8 @@ public class AnalysisService {
             String amountAndTotal = unboxedRarities.getOrDefault(rarity, 0) + "/" + (int) totalUnboxed;
             logToConsoleAndFile(format(rarity.toString(), 10, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 7, true) + "%");
         });
+
+        waitForInputAndContinue();
     }
 
     public void analyseCaseDrops(File path) {
@@ -283,6 +285,8 @@ public class AnalysisService {
             logToConsoleAndFile(format(name, 32, false) + " | " + format(String.valueOf(amount), 7, true));
         });
         logToConsoleAndFile("Total. cases: " + totalDrops);
+
+        waitForInputAndContinue();
     }
 
     public void analyseOperationDrops(File path) {
@@ -430,19 +434,40 @@ public class AnalysisService {
         return marketNameToUnboxType;
     }
 
-    private void logToConsoleAndFile(String msg) {
-        System.out.println(msg);
+    private void waitForInputAndContinue() {
+
         try {
-            getResultOutputStream().write((msg + System.lineSeparator()).getBytes());
+
+            if (outputStream != null) {
+                outputStream.flush();
+                outputStream.close();
+            }
+
+            System.out.println();
+            System.out.println("Press ENTER to continue...");
+            System.in.read();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private OutputStream getResultOutputStream() throws IOException {
+    private void logToConsoleAndFile(String msg) {
+        logToConsoleAndFile(msg, false);
+    }
 
-        if (resultFile == null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HH_mm");
+    private void logToConsoleAndFile(String msg, boolean newFile) {
+        System.out.println(msg);
+        try {
+            getResultOutputStream(newFile).write((msg + System.lineSeparator()).getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private OutputStream getResultOutputStream(boolean newFile) throws IOException {
+
+        if (resultFile == null || newFile) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
             Date dt = new Date();
             String date = sdf.format(dt);
 

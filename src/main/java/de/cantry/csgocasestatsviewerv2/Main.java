@@ -12,6 +12,8 @@ public class Main {
 
     public static void main(String[] args) {
 
+        boolean run = true;
+
         Scanner scanner = new Scanner(System.in);
         DumpService dumpService = DumpService.getInstance();
         for (String arg : args) {
@@ -28,37 +30,53 @@ public class Main {
         }
 
         int input;
+      
+        System.out.println("CSGOCaseStatsViewerV2");
 
-        if (dumpService.hasDumps()) {
-            var savedData = dumpService.getDumpData();
-            System.out.println("CSGOCaseStatsViewerV2");
-            System.out.println("Menu");
-            System.out.printf("Available data from %1$s to %2$s%n", TimeUtils.longToStringDateConverter.format(savedData.getLowestTimestamp() * 1000), TimeUtils.longToStringDateConverter.format(savedData.getHighestTimestamp() * 1000));
-            System.out.println("1. -> Dump inventory history (can take some time)");
-            System.out.println("2. -> Analyse unboxing history");
-            System.out.println("3. -> Analyse case drop history");
-            System.out.println("4. -> Analyse Operation drop history");
-            System.out.println("Type the number and press enter.");
-            input = Integer.parseInt(scanner.nextLine());
-            switch (input) {
-                case 1:
-                    dumpService.dump(savedData);
-                    break;
-                case 2:
-                    analysisService.analyseUnboxings(dumpService.getDumpDirectory());
-                    break;
-                case 3:
-                    analysisService.analyseCaseDrops(dumpService.getDumpDirectory());
-                    break;
-                case 4:
-                    analysisService.analyseOperationDrops(dumpService.getDumpDirectory());
-                    break;
+        do {
+
+            if (dumpService.hasDumps()) {
+                var savedData = dumpService.getDumpData();
+                System.out.println("Menu");
+                System.out.printf("Available data from %1$s to %2$s%n", TimeUtils.longToStringDateConverter.format(savedData.getLowestTimestamp() * 1000), TimeUtils.longToStringDateConverter.format(savedData.getHighestTimestamp() * 1000));
+                System.out.println("1. -> Dump inventory history (can take some time)");
+                System.out.println("2. -> Analyse unboxing history");
+                System.out.println("3. -> Analyse case drop history");
+                System.out.println("4. -> Analyse Operation drop history");
+                System.out.println("0. -> EXIT");
+                System.out.println("Type the number and press enter.");
+
+                try {
+                    input = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    input = -1;
+                }
+
+                switch (input) {
+                    case 1:
+                        dumpService.dump(savedData);
+                        break;
+                    case 2:
+                        analysisService.analyseUnboxings(dumpService.getDumpDirectory());
+                        break;
+                    case 3:
+                        analysisService.analyseCaseDrops(dumpService.getDumpDirectory());
+                        break;
+                    case 4:
+                        analysisService.analyseOperationDrops(dumpService.getDumpDirectory());
+                        break;
+                    case 0:
+                        run = false;
+                        break;
+                    default:
+                        System.out.println("Unknown input. Please try again.");
+                        System.out.println();
+                }
+            } else {
+                System.out.println("Dump inventory history (can take some time)");
+                input = 1;
+                dumpService.dump(null);
             }
-        } else {
-            System.out.println("Dump inventory history (can take some time)");
-            input = 1;
-            dumpService.dump(null);
-        }
+        } while (run);
     }
-
 }
