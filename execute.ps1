@@ -41,9 +41,9 @@ if ($installedJavaVersion -lt [version]$requiredJavaVersion) {
     }
 
     Write-Host "Java Path: $javaPath"
-    & $javaPath -jar "CSGOCaseStatsViewerV2-1.1.0-jar-with-dependencies.jar"
+    & $javaPath -jar "CSGOCaseStatsViewerV2-1.1.1-jar-with-dependencies.jar"
 } else {
-    & java -jar "CSGOCaseStatsViewerV2-1.1.0-jar-with-dependencies.jar"
+    & java -jar "CSGOCaseStatsViewerV2-1.1.1-jar-with-dependencies.jar"
 }
 
 PAUSE

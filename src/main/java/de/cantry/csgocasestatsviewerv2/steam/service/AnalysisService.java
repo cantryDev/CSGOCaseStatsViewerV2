@@ -20,6 +20,8 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static de.cantry.csgocasestatsviewerv2.util.FormatUtils.format;
@@ -226,6 +228,11 @@ public class AnalysisService {
         var input = Integer.parseInt(scanner.nextLine()) - 1;
         selectedUnboxType = unboxTypes.get(input).getKey();
         var unboxedRarities = new HashMap<Rarity, Integer>();
+        var unboxedNames = new HashMap<Rarity, List<String>>();
+        AtomicInteger longestDryTimeForGold = new AtomicInteger();
+        AtomicInteger casesSinceLastGold = new AtomicInteger();
+        AtomicInteger firstGold = new AtomicInteger();
+        AtomicReference<String> firstGoldDate = new AtomicReference<>();
         var filtered = getEventsFilteredByUnboxType(unboxEntries, selectedUnboxType);
         filtered.forEach(entry -> {
             var consumedItem = entry.getItemsRemoved().stream().filter(item -> {
@@ -236,11 +243,34 @@ public class AnalysisService {
                 var rarity = Rarity.fromDescription(entry.getItemsAdded().get(0).getDescription());
                 logToConsoleAndFile(consumedItem.get(0).getDescription().get("market_hash_name").getAsString() + "->" + entry.getItemsAdded().get(0).getDescription().get("market_hash_name").getAsString() + " (" + rarity + ")");
                 unboxedRarities.put(rarity, unboxedRarities.getOrDefault(rarity, 0) + 1);
+                var unboxList = unboxedNames.getOrDefault(rarity, new ArrayList<>());
+                unboxList.add(entry.getItemsAdded().get(0).getDescription().get("market_hash_name").getAsString());
+                unboxedNames.put(rarity, unboxList);
+                if (rarity == Rarity.Gold) {
+                    if (firstGold.get() == 0) {
+                        firstGold.set(casesSinceLastGold.get());
+                        firstGoldDate.set(longToStringDateConverter.format(new Date(entry.getTime() * 1000)));
+                    }
+                    if (casesSinceLastGold.get() > longestDryTimeForGold.get()) {
+                        longestDryTimeForGold.set(casesSinceLastGold.get());
+                    }
+                    casesSinceLastGold.set(0);
+                } else {
+                    casesSinceLastGold.getAndIncrement();
+                }
             } else {
                 logToConsoleAndFile("Item amount not matching");
                 logToConsoleAndFile(entry.toString());
             }
         });
+
+        OddsUtils.getOddsForUnboxType(selectedUnboxType).forEach((rarity, chance) -> {
+            logToConsoleRemoveColorAndFile(rarity.getAnsiColor() + rarity.toString() + " (" + unboxedNames.getOrDefault(rarity, Collections.emptyList()).size() + ")");
+            unboxedNames.getOrDefault(rarity, Collections.emptyList()).forEach(this::logToConsoleRemoveColorAndFile);
+            logToConsoleRemoveColorAndFile(rarity.getAnsiReset());
+        });
+
+
         var totalUnboxed = unboxedRarities.values().stream().mapToDouble(Integer::intValue).sum();
         logToConsoleAndFile("Total " + selectedUnboxType + " unboxed: " + (int) totalUnboxed);
 
@@ -252,8 +282,16 @@ public class AnalysisService {
         OddsUtils.getOddsForUnboxType(selectedUnboxType).forEach((rarity, chance) -> {
             double calculatedOdds = round((unboxedRarities.getOrDefault(rarity, 0) / totalUnboxed) * 100, 2);
             String amountAndTotal = unboxedRarities.getOrDefault(rarity, 0) + "/" + (int) totalUnboxed;
-            logToConsoleAndFile(format(rarity.toString(), 10, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 7, true) + "%");
+            logToConsoleRemoveColorAndFile(rarity.getAnsiColor() + format(rarity.toString(), 10, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 7, true) + "%" + rarity.getAnsiReset());
         });
+
+        if (OddsUtils.getOddsForUnboxType(selectedUnboxType).get(Rarity.Gold) != null) {
+            logToConsoleAndFile("");
+            logToConsoleAndFile("\"Fun\" stats");
+            logToConsoleAndFile("First Gold in case Nr. " + longestDryTimeForGold.get() + " @ " + firstGoldDate.get());
+            logToConsoleAndFile("Longest streak of cases without Gold: " + longestDryTimeForGold.get());
+            logToConsoleAndFile("Cases since last Gold: " + casesSinceLastGold.get());
+        }
 
         waitForInputAndContinue();
     }
@@ -331,7 +369,6 @@ public class AnalysisService {
         }).collect(Collectors.toList());
         var unboxedRarities = new HashMap<Rarity, Integer>();
         allFilteredItems.forEach(entry -> {
-            System.out.println();
             var rarity = Rarity.fromDescription(entry.getItemsAdded().get(0).getDescription());
             logToConsoleAndFile(longToStringDateConverter.format(entry.getTime() * 1000) + "->" + entry.getItemsAdded().get(0).getDescription().get("market_hash_name").getAsString() + " (" + rarity + ")");
             unboxedRarities.put(rarity, unboxedRarities.getOrDefault(rarity, 0) + 1);
@@ -348,11 +385,13 @@ public class AnalysisService {
         logToConsoleAndFile("-------------------------------------------");
         var lowestRarity = unboxedRarities.keySet().stream().sorted(Comparator.comparingInt(Rarity::getAsNumber)).collect(Collectors.toList()).get(0);
 
-        OddsUtils.getOdds(lowestRarity, Rarity.red).forEach((rarity, chance) -> {
+        OddsUtils.getOdds(lowestRarity, Rarity.Red).forEach((rarity, chance) -> {
             double calculatedOdds = round((unboxedRarities.getOrDefault(rarity, 0) / totalUnboxed) * 100, 2);
             String amountAndTotal = unboxedRarities.getOrDefault(rarity, 0) + "/" + (int) totalUnboxed;
-            logToConsoleAndFile(format(rarity.toString(), 10, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 5, true) + "%");
+            logToConsoleRemoveColorAndFile(rarity.getAnsiColor() + format(rarity.toString(), 10, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 5, true) + "%" + rarity.getAnsiReset());
         });
+
+        waitForInputAndContinue();
     }
 
     private List<InventoryChangeEntry> getEntriesForType(List<InventoryChangeEntry> entries, String eventName) {
@@ -453,6 +492,15 @@ public class AnalysisService {
 
     private void logToConsoleAndFile(String msg) {
         logToConsoleAndFile(msg, false);
+    }
+
+    private void logToConsoleRemoveColorAndFile(String msg) {
+        System.out.println(msg);
+        try {
+            getResultOutputStream(false).write((msg.replaceAll("\\033\\[[0-9;]*m", "") + System.lineSeparator()).getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void logToConsoleAndFile(String msg, boolean newFile) {
