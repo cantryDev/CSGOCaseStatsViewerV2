@@ -14,7 +14,7 @@ After the inventory history is dumped you can analyse how many cases you opened.
    the <a href=https://github.com/cantryDev/CSGOCaseStatsViewerV2/releases/latest>latest release tab</a> or compile it
    yourself with maven.
 2. Unzip the downloaded zip
-3. Execute the execute.bat
+3. Execute the execute.ps1 (Right click -> execute with Powershell)
 4. Follow the steps in the commandline which just got opened
 5. Get disappointed.
 
@@ -24,7 +24,8 @@ After the inventory history is dumped you can analyse how many cases you opened.
 
 ## Requirements
 
-- Java 11 or higher. You can download java from [Azul](https://www.azul.com/downloads/?version=java-21-lts&package=jre#zulu)
+- Java 11 or higher is required and will get automatically downloaded. But you can install it yourself from
+  here [Azul](https://www.azul.com/downloads/?version=java-21-lts&package=jre#zulu)
 
 
 ## Donate
