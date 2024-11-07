@@ -7,21 +7,22 @@ import de.cantry.csgocasestatsviewerv2.exception.GlobalException;
 import java.util.Arrays;
 
 public enum Rarity {
-    grey(1, "Rarity_Common"),
-    light_blue(2, "Rarity_Uncommon"),
-    blue(3, "Rarity_Rare"),
-    purple(4, "Rarity_Mythical"),
-    pink(5, "Rarity_Legendary"),
-    red(6, "Rarity_Ancient"),
-    gold(7, "Rarity_Contraband");
+    Grey(1, "Rarity_Common", ""),
+    Light_blue(2, "Rarity_Uncommon", ""),
+    Blue(3, "Rarity_Rare", "\033[0;34m"),
+    Purple(4, "Rarity_Mythical", "\033[0;35m"),
+    Pink(5, "Rarity_Legendary", ""),
+    Red(6, "Rarity_Ancient", "\033[0;31m"),
+    Gold(7, "Rarity_Contraband", "\033[0;33m");
 
     final int asNumber;
-
+    final String ansiColor;
     final String internalName;
 
-    Rarity(int i, String internalName) {
+    Rarity(int i, String internalName, String ansiColor) {
         this.asNumber = i;
         this.internalName = internalName;
+        this.ansiColor = ansiColor;
     }
 
     public static Rarity fromNumber(int number) {
@@ -42,7 +43,7 @@ public enum Rarity {
             }
         }
         if (unusual && itemRarity.startsWith("Rarity_Ancient")) {
-            return Rarity.gold;
+            return Rarity.Gold;
         }
         String finalItemRarity = itemRarity.replace("_Weapon", "").replace("_Character", "");
         var rarityOpt = Arrays.stream(values()).filter(rarity -> rarity.internalName.equals(finalItemRarity)).findFirst();
@@ -60,4 +61,13 @@ public enum Rarity {
     public String getInternalName(){
         return internalName;
     }
+
+    public String getAnsiColor() {
+        return ansiColor;
+    }
+
+    public String getAnsiReset() {
+        return "\033[0m";
+    }
+
 }

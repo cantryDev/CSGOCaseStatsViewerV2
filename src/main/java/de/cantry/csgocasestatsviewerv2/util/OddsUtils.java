@@ -8,12 +8,12 @@ public class OddsUtils {
 
     public static TreeMap<Rarity, Double> getOdds(Rarity startingAt, Rarity endingAt) {
         TreeMap<Rarity, Double> odds = new TreeMap<>();
-        if (startingAt == Rarity.blue && endingAt == Rarity.gold) {
-            odds.put(Rarity.blue, 0.7923);
-            odds.put(Rarity.purple, 0.15985);
-            odds.put(Rarity.pink, 0.03197);
-            odds.put(Rarity.red, 0.00639);
-            odds.put(Rarity.gold, 0.00256);
+        if (startingAt == Rarity.Blue && endingAt == Rarity.Gold) {
+            odds.put(Rarity.Blue, 0.7923);
+            odds.put(Rarity.Purple, 0.15985);
+            odds.put(Rarity.Pink, 0.03197);
+            odds.put(Rarity.Red, 0.00639);
+            odds.put(Rarity.Gold, 0.00256);
             return odds;
         }
 
@@ -45,16 +45,16 @@ public class OddsUtils {
         switch (unboxType) {
             case "Capsule":
             case "Pins Capsule":
-                return getOdds(Rarity.blue, Rarity.red);
+                return getOdds(Rarity.Blue, Rarity.Red);
             case "Case":
-                return getOdds(Rarity.blue, Rarity.gold);
+                return getOdds(Rarity.Blue, Rarity.Gold);
             case "Patch Pack":
-                return getOdds(Rarity.blue, Rarity.pink);
+                return getOdds(Rarity.Blue, Rarity.Pink);
             case "Souvenir Package":
             case "Collection Package":
-                return getOdds(Rarity.grey, Rarity.red);
+                return getOdds(Rarity.Grey, Rarity.Red);
             case "Music Kit Box":
-                return getOdds(Rarity.blue, Rarity.blue);
+                return getOdds(Rarity.Blue, Rarity.Blue);
         }
         return new TreeMap<>();
     }
