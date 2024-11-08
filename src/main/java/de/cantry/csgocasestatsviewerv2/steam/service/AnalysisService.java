@@ -293,7 +293,7 @@ public class AnalysisService {
                         firstGoldDate.set(longToStringDateConverter.format(new Date(entry.getTime() * 1000)));
                     }
                     if (casesSinceLastGold.get() > longestDryTimeForGold.get()) {
-                        longestDryTimeForGold.set(casesSinceLastGold.get());
+                        longestDryTimeForGold.set(casesSinceLastGold.get() - 1);
                     }
                     casesSinceLastGold.set(0);
                 } else {
@@ -328,7 +328,7 @@ public class AnalysisService {
         if (OddsUtils.getOddsForUnboxType(selectedUnboxType).get(Rarity.Gold) != null) {
             logToConsoleAndFile("");
             logToConsoleAndFile("\"Fun\" stats");
-            logToConsoleAndFile("First Gold in case Nr. " + longestDryTimeForGold.get() + " @ " + firstGoldDate.get());
+            logToConsoleAndFile("First Gold in case Nr. " + firstGold.get() + " @ " + firstGoldDate.get());
             logToConsoleAndFile("Longest streak of cases without Gold: " + longestDryTimeForGold.get());
             logToConsoleAndFile("Cases since last Gold: " + casesSinceLastGold.get());
         }
