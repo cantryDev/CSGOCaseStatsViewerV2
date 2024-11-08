@@ -20,7 +20,9 @@ After the inventory history is dumped you can analyse how many cases you opened.
 
 ## Example result
 
-<a href=https://github.com/cantryDev/CSGOCaseStatsViewerV2/blob/master/result_18_06_2023_14_07.txt>click</a>
+<img alt="Showcase" src="https://github.com/cantryDev/CSGOCaseStatsViewerV2/blob/master/result.png">
+
+<a href=https://github.com/cantryDev/CSGOCaseStatsViewerV2/blob/master/result_18_06_2023_14_07_00.txt>click</a>
 
 ## Requirements
 
