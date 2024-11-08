@@ -497,7 +497,9 @@ public class AnalysisService {
 
             System.out.println();
             System.out.println("Press ENTER to continue...");
-            System.in.readAllBytes();
+            while (System.in.read() != '\n') {
+            }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
