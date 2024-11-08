@@ -305,6 +305,10 @@ public class AnalysisService {
             }
         });
 
+        if (firstGoldDate.get() == null) {
+            longestDryTimeForGold.set(casesSinceLastGold.get());
+        }
+
         OddsUtils.getOddsForUnboxType(selectedUnboxType).forEach((rarity, chance) -> {
             logToConsoleRemoveColorAndFile(rarity.toString() + " (" + unboxedNames.getOrDefault(rarity, Collections.emptyList()).size() + ")", rarity);
             unboxedNames.getOrDefault(rarity, Collections.emptyList()).forEach(s -> logToConsoleRemoveColorAndFile(s, rarity));
