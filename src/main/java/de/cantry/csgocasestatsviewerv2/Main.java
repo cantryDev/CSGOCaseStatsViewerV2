@@ -3,16 +3,20 @@ package de.cantry.csgocasestatsviewerv2;
 import de.cantry.csgocasestatsviewerv2.steam.service.AnalysisService;
 import de.cantry.csgocasestatsviewerv2.steam.service.DumpService;
 import de.cantry.csgocasestatsviewerv2.util.TimeUtils;
+import org.fusesource.jansi.AnsiConsole;
 
 import java.util.Scanner;
 
 import static de.cantry.csgocasestatsviewerv2.util.UpdateCheckerUtils.hasNewerVersion;
+import static org.fusesource.jansi.Ansi.ansi;
 
 public class Main {
 
     public static void main(String[] args) {
 
         boolean run = true;
+        AnsiConsole.systemInstall();
+        System.out.println(ansi().bgRgb(0, 0, 0).fgRgb(255, 255, 255));
 
         Scanner scanner = new Scanner(System.in);
         DumpService dumpService = DumpService.getInstance();
@@ -36,6 +40,7 @@ public class Main {
         do {
 
             if (dumpService.hasDumps()) {
+                System.out.println(ansi().bgRgb(0, 0, 0).fgRgb(255, 255, 255));
                 var savedData = dumpService.getDumpData();
                 System.out.println("Menu");
                 System.out.printf("Available data from %1$s to %2$s%n", TimeUtils.longToStringDateConverter.format(savedData.getLowestTimestamp() * 1000), TimeUtils.longToStringDateConverter.format(savedData.getHighestTimestamp() * 1000));

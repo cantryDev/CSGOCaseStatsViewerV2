@@ -7,22 +7,20 @@ import de.cantry.csgocasestatsviewerv2.exception.GlobalException;
 import java.util.Arrays;
 
 public enum Rarity {
-    Grey(1, "Rarity_Common", ""),
-    Light_blue(2, "Rarity_Uncommon", ""),
-    Blue(3, "Rarity_Rare", "\033[0;34m"),
-    Purple(4, "Rarity_Mythical", "\033[0;35m"),
-    Pink(5, "Rarity_Legendary", ""),
-    Red(6, "Rarity_Ancient", "\033[0;31m"),
-    Gold(7, "Rarity_Contraband", "\033[0;33m");
+    Grey(1, "Rarity_Common"),
+    Light_blue(2, "Rarity_Uncommon"),
+    Blue(3, "Rarity_Rare"),
+    Purple(4, "Rarity_Mythical"),
+    Pink(5, "Rarity_Legendary"),
+    Red(6, "Rarity_Ancient"),
+    Gold(7, "Rarity_Contraband");
 
     final int asNumber;
-    final String ansiColor;
     final String internalName;
 
-    Rarity(int i, String internalName, String ansiColor) {
+    Rarity(int i, String internalName) {
         this.asNumber = i;
         this.internalName = internalName;
-        this.ansiColor = ansiColor;
     }
 
     public static Rarity fromNumber(int number) {
@@ -60,14 +58,6 @@ public enum Rarity {
 
     public String getInternalName(){
         return internalName;
-    }
-
-    public String getAnsiColor() {
-        return ansiColor;
-    }
-
-    public String getAnsiReset() {
-        return "\033[0m";
     }
 
 }

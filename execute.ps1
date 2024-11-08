@@ -5,6 +5,7 @@ $downloadUrl = "https://cdn.azul.com/zulu/bin/{0}.zip" -f $downloadJavaVersion
 $zipFileName = "java.zip"
 $extractFolderName = "java"
 $javaPath = "./java/{0}/bin/java.exe" -f $downloadJavaVersion
+$env:TERM = "xterm-256color"
 
 # Function to check installed Java version
 function Get-InstalledJavaVersion {
@@ -41,9 +42,9 @@ if ($installedJavaVersion -lt [version]$requiredJavaVersion) {
     }
 
     Write-Host "Java Path: $javaPath"
-    & $javaPath -jar "CSGOCaseStatsViewerV2-1.1.1-jar-with-dependencies.jar"
+    & $javaPath -jar "CSGOCaseStatsViewerV2-1.1.2-jar-with-dependencies.jar"
 } else {
-    & java -jar "CSGOCaseStatsViewerV2-1.1.1-jar-with-dependencies.jar"
+    & java -jar "CSGOCaseStatsViewerV2-1.1.2-jar-with-dependencies.jar"
 }
 
 PAUSE
