@@ -272,8 +272,8 @@ public class AnalysisService {
         var unboxedNames = new HashMap<Rarity, List<String>>();
         AtomicInteger longestDryTimeForGold = new AtomicInteger();
         AtomicInteger casesSinceLastGold = new AtomicInteger();
-        AtomicInteger firstGold = new AtomicInteger();
-        AtomicReference<String> firstGoldDate = new AtomicReference<>();
+        AtomicInteger firstGold = new AtomicInteger(0);
+        AtomicReference<String> firstGoldDate = new AtomicReference<>("???");
         var filtered = getEventsFilteredByUnboxType(unboxEntries, selectedUnboxType);
         filtered.forEach(entry -> {
             var consumedItem = entry.getItemsRemoved().stream().filter(item -> {
@@ -328,9 +328,12 @@ public class AnalysisService {
         if (OddsUtils.getOddsForUnboxType(selectedUnboxType).get(Rarity.Gold) != null) {
             logToConsoleAndFile("");
             logToConsoleAndFile("\"Fun\" stats");
-            logToConsoleAndFile("First Gold in case Nr. " + firstGold.get() + " @ " + firstGoldDate.get());
+            logToConsoleAndFile("First Gold in case Nr. " + (firstGold.get() == 0 ? ((int) totalUnboxed + " + 1?") : (firstGold.get())) + " @ " + firstGoldDate.get());
             logToConsoleAndFile("Longest streak of cases without Gold: " + longestDryTimeForGold.get());
-            logToConsoleAndFile("Cases since last Gold: " + casesSinceLastGold.get());
+            logToConsoleAndFile("Expected amount of Golds: " + round(OddsUtils.getOddsForUnboxType(selectedUnboxType).get(Rarity.Gold) * totalUnboxed, 2));
+            if (firstGold.get() != 0) {
+                logToConsoleAndFile("Cases since last Gold: " + casesSinceLastGold.get());
+            }
         }
 
         waitForInputAndContinue();
