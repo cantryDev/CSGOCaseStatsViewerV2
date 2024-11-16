@@ -325,6 +325,10 @@ public class AnalysisService {
             logToConsoleRemoveColorAndFile(format(rarity.toString(), 10, false) + " | " + format(amountAndTotal, 15, true) + " (~" + format(calculatedOdds + "", 6, true) + " %) | " + format(round(chance * 100, 3) + "", 7, true) + "%", rarity);
         });
 
+        if (longestDryTimeForGold.get() == 0) {
+            longestDryTimeForGold.set(casesSinceLastGold.get());
+        }
+
         if (OddsUtils.getOddsForUnboxType(selectedUnboxType).get(Rarity.Gold) != null) {
             logToConsoleAndFile("");
             logToConsoleAndFile("\"Fun\" stats");

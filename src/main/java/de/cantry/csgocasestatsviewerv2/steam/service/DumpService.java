@@ -5,11 +5,14 @@ import com.google.gson.JsonObject;
 import de.cantry.csgocasestatsviewerv2.exception.GlobalException;
 import de.cantry.csgocasestatsviewerv2.model.DumpModel;
 import de.cantry.csgocasestatsviewerv2.util.TimeUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
@@ -23,6 +26,10 @@ public class DumpService {
     private static DumpService instance;
 
     private final File dumpDirectory = new File("data/");
+
+    private final File inputDirectory = new File("input/");
+
+    private final File inputFile = new File("input/input.html");
 
     private final Gson gson;
 
@@ -217,12 +224,23 @@ public class DumpService {
 
     public void requireCookies() {
         if (cookies == null) {
-            System.out.println("Why does it need your cookies?");
-            System.out.println("It needs your cookies to request your inventory history from steamcommunity.com/my/inventoryhistory");
-            System.out.println("If you dont know how to get your cookies check https://github.com/cantryDev/CSGOCaseStatsViewer for instructions");
-            System.out.println("Please paste your cookies and press enter");
-            Scanner in = new Scanner(System.in);
-            setCookies(in.nextLine());
+            try {
+                setCookies(loadCookiesFromSavedPage());
+            } catch (Exception e) {
+                if (inputFile.exists()) {
+                    inputFile.delete();
+                }
+                e.printStackTrace(System.out);
+                System.out.println("Failed to load cookies from saved page. Falling back to manual cookie insert. Or restart to retry to load the saved session");
+            }
+            if (cookies == null) {
+                System.out.println("Why does it need your cookies?");
+                System.out.println("It needs your cookies to request your inventory history from steamcommunity.com/my/inventoryhistory");
+                System.out.println("If you dont know how to get your cookies check https://github.com/cantryDev/CSGOCaseStatsViewerV2 for instructions");
+                System.out.println("Please paste your cookies and press enter");
+                Scanner in = new Scanner(System.in);
+                setCookies(in.nextLine());
+            }
         }
         try {
             var base = httpGet("https://steamcommunity.com/my", cookies, true);
@@ -236,6 +254,42 @@ public class DumpService {
             throw new GlobalException("Failed to retrieve all needed account information. Cookies invalid?", e);
         }
 
+    }
+
+    public String loadCookiesFromSavedPage() {
+
+        inputDirectory.mkdir();
+
+        if (!inputFile.exists()) {
+            System.out.println("Input.html not found.");
+            System.out.println("To get your Steam session follow these steps.");
+            System.out.println("1) Visit your Steam Profile in a Browser and make sure you are logged in");
+            System.out.println("2) Save the Websites html (Right click save as)");
+            System.out.println("3) Save the result as input.html in the input folder");
+            System.out.println("Press enter when finished with the steps above");
+            Scanner in = new Scanner(System.in);
+            in.nextLine();
+        }
+        try {
+            var html = String.join("", Files.readAllLines(Path.of("./input/input.html")));
+            Document currentDoc = Jsoup.parse(html);
+            var applicationConfig = currentDoc.getElementById("application_config");
+            var dataUserInfo = applicationConfig.attr("data-userinfo");
+            if (dataUserInfo == null) {
+                throw new GlobalException("Saved page dosent contain Steam Session");
+            }
+            var userInfo = gson.fromJson(dataUserInfo, JsonObject.class);
+            if (!userInfo.has("logged_in") || !userInfo.get("logged_in").getAsBoolean()) {
+                throw new GlobalException("Saved page Steam Session is not logged in");
+            }
+
+            var sessionID = regexFindFirst("g_sessionID = \"([^\"]+)\"", html);
+
+            var cookie = "sessionid=" + sessionID + "; steamLoginSecure=" + userInfo.get("steamid").getAsString() + "%7C%7C" + applicationConfig.attr("data-loyalty_webapi_token").replaceAll("\"", "") + ";";
+            return cookie;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public File getDumpDirectory() {
