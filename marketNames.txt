@@ -12,6 +12,7 @@ Copenhagen 2024 Nuke Souvenir Package;Souvenir Package
 Copenhagen 2024 Vertigo Souvenir Package;Souvenir Package
 Copenhagen 2024 Ancient Souvenir Package;Souvenir Package
 Copenhagen 2024 Mirage Souvenir Package;Souvenir Package
+Fever Case;Case
 Gallery Case;Case
 Kilowatt Case;Case
 Ambush Sticker Capsule;Capsule
